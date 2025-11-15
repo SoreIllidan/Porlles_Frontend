@@ -1,4 +1,4 @@
-# 📢📢📢 **NOMBRE DEL PROYECTO**
+**Examen T3 Cloud Computing y continuidad**
 
 ![Logo del Proyecto](./docs/images/logo.png)
 
