@@ -453,4 +453,3 @@ El proxy es un "túnel" seguro que se ejecuta en la VM y se conecta a la BD.
 **Participantes:** Sebastian Dongo Quezada, Karen Rozas Valera, Alejandro Palma Tafur, Fabrizio Reyna Arce, Omar Palomino Galvez
 **Año:** 2025
 
-
