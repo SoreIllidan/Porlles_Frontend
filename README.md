@@ -294,19 +294,19 @@ cd C:\Tools\nssm-2.24\win64
 
 Reiniciamos el sitio web en IIS. El backend estará disponible.
 
-## 📤 **Frontend (Firebase Hosting)**
+## 📤 **Frontend (IIS - Puerto 80)**
 
-El frontend se despliega en **Firebase Hosting**, un servicio de hosting rápido y seguro con CDN global.
+El frontend se desplegó en **IIS (Internet Information Services)** en la misma VM donde está el backend, utilizando el puerto 80. Esto permite que el frontend y backend se comuniquen mediante rutas relativas aprovechando la configuración de proxy inverso.
 
 ### 1. Configurar URL de Producción
 
-Edita `Frontend/src/environments/environment.prod.ts` con la IP externa de tu VM:
+Edita `Frontend/src/environments/environment.prod.ts` para usar rutas relativas:
 
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: 'http://34.176.162.36:8080/api',  // Reemplaza con tu IP externa
-  uploadUrl: 'http://34.176.162.36:8080/api/upload'
+  apiUrl: '/api',  // Ruta relativa - IIS redirige internamente
+  uploadUrl: '/api/upload'
 };
 ```
 
@@ -319,61 +319,88 @@ ng build --configuration production
 
 La carpeta de distribución se generará en: `Frontend/dist/proyectosoluciones/browser/`
 
-### 3. Instalar Firebase CLI
+### 3. Subir archivos a la VM
+
+Transferimos todo el contenido de la carpeta `dist/proyectosoluciones/browser/` a la VM en la ruta:
+
+```
+C:\inetpub\wwwroot\
+```
+
+Puedes usar RDP (Escritorio Remoto) para copiar los archivos, o usar `gcloud compute scp`:
 
 ```bash
-npm install -g firebase-tools
+gcloud compute scp --recurse Frontend/dist/proyectosoluciones/browser/* windows-server-cloud-computing:C:\inetpub\wwwroot\ --zone=southamerica-west1-a
 ```
 
-### 4. Login en Firebase
+### 4. Configurar el Sitio Web en IIS
 
-```bash
-firebase login
+1. Abre **IIS Manager** en la VM.
+2. En el panel izquierdo, expande **Sites**.
+3. Haz clic derecho en **Default Web Site** → **Edit Bindings**.
+4. Verifica que esté configurado en **Puerto 80** para HTTP.
+
+### 5. Configurar web.config para SPA
+
+En `C:\inetpub\wwwroot\`, crea o edita el archivo `web.config` para habilitar el enrutamiento de Angular y el proxy inverso:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system.webServer>
+    <!-- Redirección de rutas /api al backend en puerto 8080 -->
+    <rewrite>
+      <rules>
+        <rule name="API Proxy" stopProcessing="true">
+          <match url="^api/(.*)" />
+          <action type="Rewrite" url="http://localhost:8080/api/{R:1}" />
+        </rule>
+        <!-- SPA - Redirigir todas las rutas a index.html -->
+        <rule name="Angular Routes" stopProcessing="true">
+          <match url=".*" />
+          <conditions logicalGrouping="MatchAll">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+            <add input="{REQUEST_URI}" pattern="^/api" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="/index.html" />
+        </rule>
+      </rules>
+    </rewrite>
+    
+    <!-- Tipos MIME para Angular -->
+    <staticContent>
+      <mimeMap fileExtension=".json" mimeType="application/json" />
+      <mimeMap fileExtension=".woff" mimeType="application/font-woff" />
+      <mimeMap fileExtension=".woff2" mimeType="application/font-woff2" />
+    </staticContent>
+  </system.webServer>
+</configuration>
 ```
 
-Se abrirá tu navegador para autenticarte con tu cuenta de Google.
+### 6. Instalar URL Rewrite Module (si no está instalado)
 
-### 5. Inicializar Firebase en el Proyecto
+El módulo URL Rewrite es necesario para que funcione el proxy inverso:
 
-```bash
-firebase init
-```
+1. Descarga desde: https://www.iis.net/downloads/microsoft/url-rewrite
+2. Instala el módulo en IIS.
+3. Reinicia IIS:
+   ```powershell
+   iisreset
+   ```
 
-**Configuración:**
+### 7. Verificación
 
-1. **¿Qué características quieres configurar?** → Selecciona `Hosting`
-2. **¿Qué proyecto quieres usar?** → Selecciona tu proyecto o crea uno nuevo
-3. **¿Cuál es tu directorio público?** → `dist/proyectosoluciones/browser`
-4. **¿Configurar como SPA?** → `Yes`
-5. **¿Sobrescribir index.html?** → `No`
-
-### 6. Desplegar en Firebase
-
-```bash
-firebase deploy
-```
-
-Al finalizar, verás la URL de tu aplicación:
+Accede al frontend desde tu navegador:
 
 ```
-Hosting URL: https://tu-proyecto.web.app
+http://34.176.162.36
 ```
 
-### 7. Configurar CORS en el Backend
-
-Actualiza el archivo `application-prod.properties` en la VM para permitir tu dominio de Firebase:
-
-```properties
-cors.allowed-origins=https://tu-proyecto.web.app,https://tu-proyecto.firebaseapp.com
-```
-
-Reinicia el backend en IIS.
-
-### 8. (Opcional) Configurar Dominio Personalizado
-
-1. Ve a **Firebase Console → Hosting**.
-2. Haz clic en **"Agregar dominio personalizado"**.
-3. Sigue las instrucciones para configurar los registros DNS.
+El frontend ahora:
+- Se sirve desde el puerto 80
+- Las llamadas a `/api` se redirigen automáticamente al backend en `localhost:8080`
+- No hay problemas de CORS porque todo está en el mismo dominio
 
 ---
 
@@ -403,9 +430,14 @@ Reinicia el backend en IIS.
    ng build --configuration production
    ```
 
-2. Despliega en Firebase:
+2. Transfiere los archivos a la VM:
    ```bash
-   firebase deploy
+   gcloud compute scp --recurse Frontend/dist/proyectosoluciones/browser/* windows-server-cloud-computing:C:\inetpub\wwwroot\ --zone=southamerica-west1-a
+   ```
+
+3. O copia manualmente los archivos vía RDP y reinicia IIS:
+   ```powershell
+   iisreset
    ```
 
 ---
@@ -502,36 +534,42 @@ spring.datasource.password=tu_contraseña_segura
 ┌─────────────────────────────────────────────────────────────────┐
 │                     GOOGLE CLOUD PLATFORM                       │
 │                                                                 │
-│  ┌──────────────────┐         ┌─────────────────────────────┐  │
-│  │  Firebase        │         │   Compute Engine (VM)       │  │
-│  │  Hosting         │────────▶│   Windows Server 2022       │  │
-│  │                  │  HTTP   │                             │  │
-│  │  (Frontend)      │         │  ┌───────────────────────┐  │  │
-│  │  Angular 19      │         │  │  IIS + HttpPlatform   │  │  │
-│  └──────────────────┘         │  │  Handler              │  │  │
-│                               │  └───────────────────────┘  │  │
-│                               │           │                 │  │
-│                               │  ┌────────▼──────────────┐  │  │
-│                               │  │  Spring Boot 3.5      │  │  │
-│                               │  │  (Backend API)        │  │  │
-│                               │  │  Puerto: 8080         │  │  │
-│                               │  └────────┬──────────────┘  │  │
-│                               │           │                 │  │
-│                               │  ┌────────▼──────────────┐  │  │
-│                               │  │  Cloud SQL Auth Proxy │  │  │
-│                               │  │  (Servicio Windows)   │  │  │
-│                               │  │  localhost:3306       │  │  │
-│                               │  └────────┬──────────────┘  │  │
-│                               └───────────┼─────────────────┘  │
-│                                           │                    │
-│                                           │ IP Privada         │
-│                                           │ (VPC Network)      │
-│                                           │                    │
-│                               ┌───────────▼─────────────────┐  │
-│                               │   Cloud SQL (MySQL 8.0)     │  │
-│                               │   Alta Disponibilidad       │  │
-│                               │   ImportPorllesDB           │  │
-│                               └─────────────────────────────┘  │
+│                      ┌─────────────────────────────────────┐    │
+│                      │   Compute Engine (VM)               │    │
+│   Usuario  ─────────▶│   Windows Server 2022               │    │
+│   http://IP:80       │                                     │    │
+│                      │  ┌───────────────────────────────┐  │    │
+│                      │  │  IIS Puerto 80                │  │    │
+│                      │  │  (Frontend Angular)           │  │    │
+│                      │  │  + URL Rewrite (Proxy)        │  │    │
+│                      │  └────────┬──────────────────────┘  │    │
+│                      │           │ /api → localhost:8080   │    │
+│                      │  ┌────────▼──────────────────────┐  │    │
+│                      │  │  IIS Puerto 8080              │  │    │
+│                      │  │  HttpPlatformHandler          │  │    │
+│                      │  └────────┬──────────────────────┘  │    │
+│                      │           │                         │    │
+│                      │  ┌────────▼──────────────────────┐  │    │
+│                      │  │  Spring Boot 3.5              │  │    │
+│                      │  │  (Backend API)                │  │    │
+│                      │  │  Puerto: 8080                 │  │    │
+│                      │  └────────┬──────────────────────┘  │    │
+│                      │           │                         │    │
+│                      │  ┌────────▼──────────────────────┐  │    │
+│                      │  │  Cloud SQL Auth Proxy         │  │    │
+│                      │  │  (Servicio Windows)           │  │    │
+│                      │  │  localhost:3306               │  │    │
+│                      │  └────────┬──────────────────────┘  │    │
+│                      └───────────┼─────────────────────────┘    │
+│                                  │                              │
+│                                  │ IP Privada                   │
+│                                  │ (VPC Network)                │
+│                                  │                              │
+│                      ┌───────────▼─────────────────────────┐    │
+│                      │   Cloud SQL (MySQL 8.0)             │    │
+│                      │   Alta Disponibilidad               │    │
+│                      │   ImportPorllesDB                   │    │
+│                      └─────────────────────────────────────┘    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 
@@ -541,19 +579,21 @@ spring.datasource.password=tu_contraseña_segura
 ✅ **Cloud SQL Auth Proxy:** Autenticación segura con credenciales de Google Cloud
 ✅ **Firewall Rules:** Control de acceso granular a nivel de red
 ✅ **JWT Authentication:** Tokens seguros para autenticación de usuarios
-✅ **CORS Configurado:** Solo dominios autorizados pueden acceder al backend
-✅ **HTTPS en Firebase:** Certificado SSL automático para el frontend
+✅ **Proxy Inverso:** Frontend y backend en el mismo servidor - sin problemas de CORS
+✅ **IIS URL Rewrite:** Redireccionamiento automático de /api al backend
 ```
 
 **Flujo de una petición:**
 
-1. Usuario accede al frontend en Firebase Hosting (HTTPS)
-2. Angular realiza petición HTTP al backend en la VM (puerto 8080)
-3. IIS recibe la petición y la pasa al proceso Java (Spring Boot)
-4. Spring Boot se conecta a `localhost:3306` (Cloud SQL Auth Proxy)
-5. El proxy establece conexión segura con Cloud SQL vía IP privada
-6. Cloud SQL ejecuta la consulta y devuelve los datos
-7. La respuesta se envía de vuelta al frontend
+1. Usuario accede al frontend en `http://34.176.162.36` (IIS puerto 80)
+2. IIS sirve los archivos estáticos de Angular
+3. Angular realiza petición a `/api` (ruta relativa)
+4. IIS detecta la ruta `/api` y la redirige internamente a `http://localhost:8080/api`
+5. Spring Boot procesa la petición
+6. Spring Boot se conecta a `localhost:3306` (Cloud SQL Auth Proxy)
+7. El proxy establece conexión segura con Cloud SQL vía IP privada
+8. Cloud SQL ejecuta la consulta y devuelve los datos
+9. La respuesta se envía de vuelta al frontend
 
 ---
 
