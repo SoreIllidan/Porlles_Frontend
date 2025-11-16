@@ -30,21 +30,26 @@ Link: del repositorio backend https://github.com/SoreIllidan/Porlles_Frontend/
 
 # 🚀 **EJECUCIÓN LOCAL**
 
+## 📋 **Requisitos Previos**
+
+- **Java 21** o superior
+- **Node.js 18** o superior
+- **MySQL 8.0** o superior
+- **Maven 3.6** o superior
+- **Angular CLI** (`npm install -g @angular/cli`)
+
+---
+
 ## 🔧 **1. Base de Datos (MySQL)**
 
-PASOS:
+### Pasos:
 
-1. Instala primero MySQL Workbench.
-2. Conéctate a la instancia deseada y ejecuta el comando indicado.
+1. **Instala MySQL Workbench** o MySQL Server.
+2. **Conéctate a tu instancia local de MySQL.**
+3. **Ejecuta el siguiente comando:**
 
-
-### Crear Base de Datos
 ```sql
 CREATE DATABASE ImportPorllesDB;
-```
-
-Primero es necesario crear la base de datos, ya que nuestro backend en Spring Boot la requiere para generar las tablas e insertar los datos por defecto. Con esto, habremos completado la configuración de MySQL.
-
 ---
 
 ## ⚙️ **2. Backend (Spring Boot)**
