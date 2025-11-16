@@ -27,28 +27,6 @@ Link: del repositorio backend https://github.com/SoreIllidan/Porlles_Frontend/
 
 ---
 
-# 📁 **ESTRUCTURA DEL PROYECTO**
-
-```txt
-/
-├── backend/            # Spring Boot
-│   ├── src/main/java/
-│   ├── src/main/resources/
-│   └── pom.xml
-│
-├── frontend/           # Angular
-│   ├── src/
-│   ├── angular.json
-│   └── package.json
-│
-└── database/
-    ├── schema.sql
-    └── seed.sql
-```
-
----
-
-
 
 # 🚀 **EJECUCIÓN LOCAL**
 
