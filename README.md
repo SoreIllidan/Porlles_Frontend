@@ -46,9 +46,9 @@ Link: del repositorio backend https://github.com/SoreIllidan/Porlles_Frontend/
 
 ### Pasos:
 
-1. **Instala MySQL Workbench** o MySQL Server.
-2. **Conéctate a tu instancia local de MySQL.**
-3. **Ejecuta el siguiente comando:**
+1. **Instalamos MySQL Workbench** o MySQL Server.
+2. **Nos conectamos a nuestra instancia local de MySQL.**
+3. **Ejecutamos el siguiente comando:**
 
 ```sql
 CREATE DATABASE ImportPorllesDB;
@@ -96,7 +96,7 @@ El backend estará disponible en: **http://localhost:8080**
 
 ### Configurar Entorno
 
-Verifica que el archivo `Frontend/src/environments/environment.ts` tenga la URL correcta del backend:
+Verificamos que el archivo `Frontend/src/environments/environment.ts` tenga la URL correcta del backend:
 
 ```typescript
 export const environment = {
@@ -127,7 +127,7 @@ El frontend estará disponible en: **http://localhost:4200**
 
 ## 📤 **Backend (IIS - Puerto 8080 Windows Server)**
 
-El backend se despliegó en una **VM de Windows Server en Compute Engine**, utilizando **IIS (Internet Information Services)** como servidor web con el módulo **HttpPlatformHandler** para ejecutar la aplicación Spring Boot.
+El backend se desplegó en una **VM de Windows Server en Compute Engine**, utilizando **IIS (Internet Information Services)** como servidor web con el módulo **HttpPlatformHandler** para ejecutar la aplicación Spring Boot.
 
 ### 1. Crear la VM en Compute Engine
 
