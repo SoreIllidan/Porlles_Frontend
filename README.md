@@ -34,7 +34,7 @@ Link: del repositorio backend https://github.com/SoreIllidan/Porlles_Frontend/
 
 PASOS:
 
-1.Primero instalamos Mysql Workbench 
+1.Primero instalamos MySQL Workbench\n
 2.Ingresamos a una conexión deseada y ejecutamos el siguiente comando
 
 ### Crear Base de Datos
@@ -42,7 +42,7 @@ PASOS:
 CREATE DATABASE ImportPorllesDB;
 ```
 
-Necesitamos primero crear la base de datos ya que nuestro backend springboot la crea si no existe y ya con esto terminariamos con el MySQL
+Necesitamos primero crear la base de datos ya que nuestro backend springboot la necesita para insertar las tablas e ingresar los datos por default y ya con esto terminariamos con el MySQL
 
 ---
 
