@@ -125,7 +125,7 @@ El frontend estará disponible en: **http://localhost:4200**
 
 # ☁️ **DESPLIEGUE EN LA NUBE**
 
-## 📤 **Backend (Compute Engine - Windows Server)**
+## 📤 **Backend (IIS - Puerto 8080 Windows Server)**
 
 El backend se despliegó en una **VM de Windows Server en Compute Engine**, utilizando **IIS (Internet Information Services)** como servidor web con el módulo **HttpPlatformHandler** para ejecutar la aplicación Spring Boot.
 
@@ -210,7 +210,7 @@ server.port=${PORT:8080}
 #### Instalar IIS:
 
 1. Abrimos **Server Manager** → **Add roles and features**.
-2. Selecciona **Web Server (IIS)**.
+2. Seleccionamos **Web Server (IIS)**.
 3. Instalamos con las opciones por defecto.
 
 #### Instalar HttpPlatformHandler:
@@ -294,7 +294,7 @@ cd C:\Tools\nssm-2.24\win64
 
 Reiniciamos el sitio web en IIS. El backend estará disponible.
 
-## 📤 **Frontend (IIS - Puerto 80)**
+## 📤 **Frontend (IIS - Puerto 80 Windows Server)**
 
 El frontend se desplegó en **IIS (Internet Information Services)** en la misma VM donde está el backend, utilizando el puerto 80. Esto permite que el frontend y backend se comuniquen mediante rutas relativas aprovechando la configuración de proxy inverso.
 
