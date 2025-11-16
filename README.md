@@ -139,7 +139,7 @@ El backend se despliegó en una **VM de Windows Server en Compute Engine**, util
    - **Zona:** `southamerica-west1-a`
    - **Tipo de máquina:** e2-medium (2 vCPU, 4 GB memoria)
    - **Disco de arranque:** Windows Server 2022 Datacenter (50 GB SSD)
-   - **Firewall:** ✅ Permitir tráfico HTTP y HTTPS
+   - **Firewall:** Permitir tráfico HTTP y HTTPS
 
 4. En **"Identidad y acceso a las API"**, seleccionamos **"Permitir acceso completo a todas las API de Cloud"**.
 5. Hacemos clic en **"Crear"**.
