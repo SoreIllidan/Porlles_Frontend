@@ -261,15 +261,15 @@ Para que el proxy se ejecute automáticamente:
 #### Descargar NSSM (Non-Sucking Service Manager):
 
 ```powershell
-# Descarga desde: https://nssm.cc/download
-# Extrae a C:\Tools\nssm-2.24\win64\nssm.exe
+# Descargamos desde: https://nssm.cc/download
+# Extraemos a C:\Tools\nssm-2.24\win64\nssm.exe
 ```
 
 #### Descargar Cloud SQL Auth Proxy:
 
 ```powershell
-# Descarga desde: https://cloud.google.com/sql/docs/mysql/connect-instance-auth-proxy#windows-64-bit
-# Guarda en: C:\App\cloud-sql-proxy.exe
+# Descargamos desde: https://cloud.google.com/sql/docs/mysql/connect-instance-auth-proxy#windows-64-bit
+# Guardamos en: C:\App\cloud-sql-proxy.exe
 ```
 
 #### Crear el servicio:
